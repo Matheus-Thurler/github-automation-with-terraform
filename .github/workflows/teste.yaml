@@ -1,0 +1,67 @@
+#name: Teste
+#on:
+#    workflow_dispatch:
+#        inputs:
+#            create_repository:
+#                options:
+#                    - true
+#                    - false
+#                default: true
+#                required: false
+#                type: choice
+#            language:
+#                options:
+#                    - python
+#                    - node
+#                    - go
+#            type_project:
+#                options:
+#                    - sta
+#                    - srv
+# Nome do workflow, para fácil identificação
+name: Teste de Conexão com Self-Hosted Runner
+
+# Gatilho manual: permite que você rode este workflow clicando em um botão na interface do GitHub.
+on:
+  workflow_dispatch:
+
+jobs:
+  # Nome do job
+  test-runner-connection:
+
+    # --- ESTA É A LINHA MAIS IMPORTANTE ---
+    # Define que este job DEVE rodar em um runner com a label 'self-hosted'.
+    # Se você usou uma label diferente na sua configuração do RunnerDeployment, mude aqui.
+    runs-on: self-hosted
+
+    steps:
+      - name: 1. Onde estou rodando?
+        run: |
+          echo "Este job está rodando em:"
+          hostname
+          echo "---------------------------"
+
+      - name: 2. Qual o diretório de trabalho?
+        run: |
+          echo "O diretório atual é:"
+          pwd
+          echo "---------------------------"
+          echo "Conteúdo do diretório:"
+          ls -la
+          echo "---------------------------"
+
+      - name: 3. Quem sou eu?
+        run: |
+          echo "Executando como o usuário:"
+          whoami
+          echo "---------------------------"
+
+      - name: 4. O kubectl está disponível?
+        run: |
+          echo "Verificando a versão do kubectl..."
+          # Este comando testa se o kubectl está no PATH, sem precisar de autenticação completa.
+          kubectl version --client
+          echo "---------------------------"
+
+      - name: 5. Teste concluído!
+        run: echo "🎉 O runner self-hosted respondeu e executou o job com sucesso!"
