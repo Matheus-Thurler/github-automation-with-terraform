@@ -1,20 +1,36 @@
-name: Teste Final - Runner Funcional
+name: Deploy com Helm e Kubectl
 
 on:
   workflow_dispatch:
 
 jobs:
-  test-runner-is-working:
+  deploy-to-cluster:
     runs-on: self-hosted
 
     steps:
-      - name: 1. Onde estou rodando? (Hostname do Pod)
-        run: hostname
-
-      - name: 2. O kubectl está disponível e funcionando?
+      - name: 1. Listar os pods no namespace default
         run: |
-          echo "Verificando a versão do kubectl..."
-          kubectl version --client
+          echo "Verificando os pods existentes..."
+          kubectl get pods -n default
+          echo "-----------------------------------"
 
-      - name: 3. Sucesso!
-        run: echo "🎉🎉🎉 Ambiente self-hosted 100% operacional! 🎉🎉🎉"
+      - name: 2. Instalar ou atualizar um chart com Helm
+        run: |
+          echo "Instalando um chart do NGINX como exemplo..."
+          # Adiciona o repositório do Bitnami
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo update
+          
+          # Instala ou atualiza o chart no namespace default
+          # O comando 'upgrade --install' é idempotente
+          helm upgrade --install my-nginx bitnami/nginx \
+            --namespace default \
+            --set=service.type=ClusterIP
+
+      - name: 3. Verificar o status do deploy
+        run: |
+          echo "Aguardando o deploy ficar pronto..."
+          kubectl rollout status deployment/my-nginx -n default
+          echo "-----------------------------------"
+          echo "Listando os pods novamente para ver o NGINX:"
+          kubectl get pods -n default
