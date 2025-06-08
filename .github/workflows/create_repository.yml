@@ -1,0 +1,30 @@
+name: create_repository.yml
+
+on:
+  workflow_dispatch:
+    inputs:
+      language:
+        required: true
+        type: choice
+        options:
+          - node
+          - python
+        description: "project language type"
+      architecture:
+        required: true
+        type: choice
+        options:
+          - srv
+          - sta
+        description: "project architecture type"
+      repository_name:
+        required: true
+        description: "repository name"
+        type: string
+jobs:
+  call-build:
+    uses: Matheus-Thurler/reusable-workflows/.github/workflows/create-repository.yml@master
+    with:
+      language: ${{ inputs.language }}
+      arquitecture: ${{ inputs.architecture }}
+      repository_name: ${{ inputs.repository_name }}

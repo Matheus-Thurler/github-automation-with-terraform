@@ -1,0 +1,65 @@
+# ===================================================================
+# ARQUIVO 1 de 4: A Conta de Serviço (Identidade do Runner)
+# Define a identidade que o pod do runner usará.
+# ===================================================================
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: runner-service-account
+  # Garante que seja criada no namespace 'default'
+  namespace: default
+# Anexa o segredo para que o pod possa baixar a imagem privada do GHCR
+imagePullSecrets:
+- name: ghcr-credentials
+---
+# ===================================================================
+# ARQUIVO 2 de 4: As Permissões (O que o Runner pode fazer)
+# Define um "crachá" com permissões de administrador, mas APENAS no namespace 'default'.
+# ===================================================================
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: runner-full-access-default
+  namespace: default
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+# ===================================================================
+# ARQUIVO 3 de 4: A Conexão (Quem recebe as permissões)
+# Conecta a identidade (ServiceAccount) com o "crachá" de permissões (Role).
+# ===================================================================
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: runner-binding-default
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: runner-service-account
+  namespace: default
+roleRef:
+  kind: Role
+  name: runner-full-access-default
+  apiGroup: rbac.authorization.k8s.io
+---
+# ===================================================================
+# ARQUIVO 4 de 4: O Runner Deployment (A Carga de Trabalho)
+# Cria os pods do runner usando a identidade e as permissões acima.
+# ===================================================================
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: RunnerDeployment
+metadata:
+  name: github-automation-runner
+  namespace: default
+spec:
+  replicas: 1
+  template:
+    spec:
+      dockerEnabled: false
+      repository: Matheus-Thurler/github-automation-with-terraform
+      image: ghcr.io/matheus-thurler/actions-runner-kubectl:v4
+      serviceAccountName: runner-service-account
+      labels:
+        - self-hosted
