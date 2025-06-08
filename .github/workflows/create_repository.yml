@@ -26,5 +26,5 @@ jobs:
     uses: Matheus-Thurler/reusable-workflows/.github/workflows/create-repository.yml@master
     with:
       language: ${{ inputs.language }}
-      arquitecture: ${{ inputs.architecture }}
+      architecture: ${{ inputs.architecture }}
       repository_name: ${{ inputs.repository_name }}
