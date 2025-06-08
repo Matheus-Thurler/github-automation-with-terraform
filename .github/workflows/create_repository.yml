@@ -28,3 +28,5 @@ jobs:
       language: ${{ inputs.language }}
       architecture: ${{ inputs.architecture }}
       repository_name: ${{ inputs.repository_name }}
+    secrets:
+      GH_TOKEN:  ${{ secrets.GH_TOKEN }}
